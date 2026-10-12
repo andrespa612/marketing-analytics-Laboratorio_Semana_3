@@ -87,7 +87,7 @@ def coeficiente_qini(xs, ys, n):
 
 # --- Título y carga de datos ---
 st.title("Laboratorio Final — Starbucks Rewards")
-st.caption("TODO: escriban aquí una frase sobre qué decisión de negocio ayuda a tomar esta app.")
+st.caption("Esta app permite explorar el incremento en ventas de un programa de fidelización de Starbucks, usando un modelo de T-learner, buscando el % de la base a contactar que maximice el valor de la política.")
 
 
 df = load_data()
@@ -133,4 +133,3 @@ st.image(img_path)
 # --- TODO: muestren la tabla de políticas (valor por cliente y total) para el % elegido ---
 
 
-st.info("Reemplacen cada TODO con su propio código. Revisen el notebook del laboratorio para la lógica exacta de cada pieza.")
