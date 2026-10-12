@@ -59,23 +59,6 @@ def valor_de_la_politica(test_df, seleccionados):
     valor_control = sel.loc[sel["treatment_group"] == "control", "margin_60d"].mean()
     return valor_tratado - valor_control, len(sel)
 
-
-# --- Título y carga de datos ---
-st.title("Laboratorio Final — Starbucks Rewards")
-st.caption("TODO: escriban aquí una frase sobre qué decisión de negocio ayuda a tomar esta app.")
-
-
-df = load_data()
-
-# TODO: agreguen un slider en la barra lateral para el % de la base a contactar
-with st.sidebar:
-    st.header("Parámetros")
-    pct_contactar = st.slider("Porcentaje de la base a contactar", 0, 100, 50)   # <-- reemplacen esto: st.slider(...)
-
-train, test = entrenar_t_learner(df, test_size=0.30, seed=42)
-
-# --- TODO: calculen y grafiquen la curva Qini de su T-learner ---
-
 def curva_qini(test_df, score_col, steps=40):
     orden = test_df.sort_values(score_col, ascending=False).reset_index(drop=True)
     es_tratado = (orden["treatment_group"] == "treatment").values
@@ -102,6 +85,22 @@ def coeficiente_qini(xs, ys, n):
     area_azar = np.trapezoid(np.linspace(0, ys[-1], len(xs)), xs)
     return (area_modelo - area_azar) / n
 
+# --- Título y carga de datos ---
+st.title("Laboratorio Final — Starbucks Rewards")
+st.caption("TODO: escriban aquí una frase sobre qué decisión de negocio ayuda a tomar esta app.")
+
+
+df = load_data()
+
+# TODO: agreguen un slider en la barra lateral para el % de la base a contactar
+with st.sidebar:
+    st.header("Parámetros")
+    pct_contactar = st.slider("Porcentaje de la base a contactar", 0, 100, 50)   # <-- reemplacen esto: st.slider(...)
+
+train, test = entrenar_t_learner(df, test_size=0.30, seed=42)
+
+# --- TODO: calculen y grafiquen la curva Qini de su T-learner ---
+
 xs_uplift, ys_uplift = curva_qini(test, "uplift_estimado")
 qini_uplift = coeficiente_qini(xs_uplift, ys_uplift, len(test))
 
@@ -121,5 +120,14 @@ st.image(img_path)
 
 # --- TODO: muestren la tabla de políticas (valor por cliente y total) para el % elegido ---
 
+resultados = []
+for pct in range(10, 101, 10):
+    n_c = int(len(test) * pct / 100)
+    idx = test.sort_values("uplift_estimado", ascending=False).head(n_c).index
+    valor_cliente, n = valor_de_la_politica(test, idx)
+    resultados.append({"pct_contactado": pct, "valor_por_cliente": round(valor_cliente, 2), "n_contactados": n, "valor_total": round(valor_cliente * n, 2)})
+
+tabla_politicas = pd.DataFrame(resultados)
+st.dataframe(tabla_politicas)
 
 st.info("Reemplacen cada TODO con su propio código. Revisen el notebook del laboratorio para la lógica exacta de cada pieza.")
