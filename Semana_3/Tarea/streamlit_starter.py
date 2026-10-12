@@ -103,13 +103,13 @@ def tabla_de_politicas(test, pct_contactar):
     st.subheader(f"Tabla de políticas para {pct_contactar}% de la base contactada")
     st.dataframe(tabla_politicas)
 
+train, test = entrenar_t_learner(df, test_size=0.30, seed=42)
 # TODO: agreguen un slider en la barra lateral para el % de la base a contactar
 with st.sidebar:
     st.header("Parámetros")
     pct_contactar = st.slider("Porcentaje de la base a contactar", 0, 100, 50)   # <-- reemplacen esto: st.slider(...)
-    tabla_de_politicas(df, pct_contactar)
+    tabla_de_politicas(test, pct_contactar)
 
-train, test = entrenar_t_learner(df, test_size=0.30, seed=42)
 
 # --- TODO: calculen y grafiquen la curva Qini de su T-learner ---
 
