@@ -109,7 +109,7 @@ ax.plot(xs_uplift, ys_uplift, color="#00704A", linewidth=3, label=f"T-learner (Q
 ax.plot([0, 1], [0, ys_uplift[-1]], color="#9A988E", linestyle="--", label="Al azar")
 ax.set_xlabel("% de la base contactada (de prueba)")
 ax.set_ylabel("Respuestas incrementales acumuladas")
-ax.set_title("Laboratorio Final — la curva Qini de su T-learner")
+ax.set_title("Curva Qini de T-learner")
 ax.legend()
 plt.tight_layout()
 plt.savefig("curva_qini_laboratorio.png", dpi=150)
@@ -128,6 +128,7 @@ for pct in range(10, 101, 10):
     resultados.append({"pct_contactado": pct, "valor_por_cliente": round(valor_cliente, 2), "n_contactados": n, "valor_total": round(valor_cliente * n, 2)})
 
 tabla_politicas = pd.DataFrame(resultados)
+st.subheader(f"Tabla de políticas para {pct_contactar}% de la base contactada")
 st.dataframe(tabla_politicas)
 
 st.info("Reemplacen cada TODO con su propio código. Revisen el notebook del laboratorio para la lógica exacta de cada pieza.")
