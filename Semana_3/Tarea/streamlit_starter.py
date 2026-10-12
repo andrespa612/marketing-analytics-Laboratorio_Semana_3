@@ -26,7 +26,7 @@ FEATURES = ["recency_days", "frequency", "monetary", "email_open_rate", "tenure_
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("data/uplift_campaign.csv")
+    return pd.read_csv("data/uplift_campaign_FULL.csv")
 
 
 @st.cache_data
