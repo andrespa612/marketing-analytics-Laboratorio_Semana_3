@@ -112,10 +112,10 @@ ax.set_ylabel("Respuestas incrementales acumuladas")
 ax.set_title("Curva Qini de T-learner")
 ax.legend()
 plt.tight_layout()
-plt.savefig("curva_qini_laboratorio.png", dpi=150)
+plt.savefig("curva_qini_streamlit.png", dpi=150)
 plt.show()
 
-img_path = Path(__file__).resolve().parent / "curva_qini_laboratorio.png"
+img_path = Path(__file__).resolve().parent / "curva_qini_streamlit.png"
 st.image(img_path)
 
 # --- TODO: muestren la tabla de políticas (valor por cliente y total) para el % elegido ---
