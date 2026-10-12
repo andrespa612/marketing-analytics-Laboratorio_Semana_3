@@ -36,14 +36,33 @@ def entrenar_t_learner(df: pd.DataFrame, test_size: float, seed: int):
     # TODO: entrenen el T-learner (dos modelos, igual que en el notebook)
     train_t = train[train["treatment_group"] == "treatment"]
     train_c = train[train["treatment_group"] == "control"]
-    modelo_tratado = ...   # <-- reemplacen esto
-    modelo_control = ...   # <-- reemplacen esto
+    modelo_tratado = LogisticRegression(max_iter=1000).fit(train_t[FEATURES], train_t["responded_60d"])
+    modelo_control = LogisticRegression(max_iter=1000).fit(train_c[FEATURES], train_c["responded_60d"])
 
     test = test.copy()
     X_test = test[FEATURES]
     test["p_tratado"] = modelo_tratado.predict_proba(X_test)[:, 1]
     test["p_control"] = modelo_control.predict_proba(X_test)[:, 1]
     test["uplift_estimado"] = test["p_tratado"] - test["p_control"]
+    
+    xs_uplift, ys_uplift = curva_qini(test, "uplift_estimado")
+    xs_riesgo, ys_riesgo = curva_qini(test, "prob_churn")
+    qini_uplift = coeficiente_qini(xs_uplift, ys_uplift, len(test))
+    qini_riesgo = coeficiente_qini(xs_riesgo, ys_riesgo, len(test))
+
+    fig, ax = plt.subplots(figsize=(9, 6))
+    ax.plot(xs_uplift, ys_uplift, color="#00704A", linewidth=3, label=f"T-learner (Qini={qini_uplift:+.3f})")
+    ax.plot(xs_riesgo, ys_riesgo, color="#C4512F", linewidth=3, label=f"Riesgo/churn (Qini={qini_riesgo:+.3f})")
+    ax.plot([0, 1], [0, ys_uplift[-1]], color="#9A988E", linestyle="--", label="Al azar")
+    ax.set_xlabel("% de la base contactada (de prueba)")
+    ax.set_ylabel("Respuestas incrementales acumuladas")
+    ax.set_title("Laboratorio Final — la curva Qini de su T-learner")
+    ax.legend()
+    plt.tight_layout()
+    plt.savefig("curva_qini_laboratorio.png", dpi=150)
+    plt.show()
+
+
     return train, test
 
 
@@ -63,12 +82,37 @@ df = load_data()
 # TODO: agreguen un slider en la barra lateral para el % de la base a contactar
 with st.sidebar:
     st.header("Parámetros")
-    pct_contactar = ...   # <-- reemplacen esto: st.slider(...)
+    pct_contactar = st.slider("Porcentaje de la base a contactar", 0, 100, 50)   # <-- reemplacen esto: st.slider(...)
 
 train, test = entrenar_t_learner(df, test_size=0.30, seed=42)
 
 # --- TODO: calculen y grafiquen la curva Qini de su T-learner ---
 
+def curva_qini(test_df, score_col, steps=40):
+    orden = test_df.sort_values(score_col, ascending=False).reset_index(drop=True)
+    es_tratado = (orden["treatment_group"] == "treatment").values
+    respondio = orden["responded_60d"].values
+
+    acumulado_tratados = np.cumsum(np.where(es_tratado, respondio, 0))
+    acumulado_control = np.cumsum(np.where(~es_tratado, respondio, 0))
+    n_tratados_acum = np.cumsum(es_tratado)
+    n_control_acum = np.cumsum(~es_tratado)
+
+    n = len(orden)
+    xs, ys = [0.0], [0.0]
+    for i in np.linspace(1, n, steps).astype(int):
+        nt, nc = n_tratados_acum[i - 1], n_control_acum[i - 1]
+        tasa_t = acumulado_tratados[i - 1] / nt if nt > 0 else 0
+        tasa_c = acumulado_control[i - 1] / nc if nc > 0 else 0
+        xs.append(i / n)
+        ys.append((tasa_t - tasa_c) * n)
+    return np.array(xs), np.array(ys)
+
+
+def coeficiente_qini(xs, ys, n):
+    area_modelo = np.trapezoid(ys, xs)
+    area_azar = np.trapezoid(np.linspace(0, ys[-1], len(xs)), xs)
+    return (area_modelo - area_azar) / n
 
 # --- TODO: muestren la tabla de políticas (valor por cliente y total) para el % elegido ---
 
