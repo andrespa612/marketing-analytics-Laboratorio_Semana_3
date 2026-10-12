@@ -64,6 +64,7 @@ def valor_de_la_politica(test_df, seleccionados):
 st.title("Laboratorio Final — Starbucks Rewards")
 st.caption("TODO: escriban aquí una frase sobre qué decisión de negocio ayuda a tomar esta app.")
 
+
 df = load_data()
 
 # TODO: agreguen un slider en la barra lateral para el % de la base a contactar
@@ -114,6 +115,9 @@ ax.legend()
 plt.tight_layout()
 plt.savefig("curva_qini_laboratorio.png", dpi=150)
 plt.show()
+
+img_path = Path(__file__).resolve().parent / "curva_qini_laboratorio.png"
+st.image(img_path)
 
 # --- TODO: muestren la tabla de políticas (valor por cliente y total) para el % elegido ---
 
