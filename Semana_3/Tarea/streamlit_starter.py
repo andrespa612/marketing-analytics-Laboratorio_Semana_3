@@ -115,7 +115,7 @@ plt.tight_layout()
 plt.savefig("curva_qini_streamlit.png", dpi=150)
 plt.show()
 
-img_path = Path(__file__).resolve().parent / "curva_qini_streamlit.png"
+img_path = "curva_qini_streamlit.png"
 st.image(img_path)
 
 # --- TODO: muestren la tabla de políticas (valor por cliente y total) para el % elegido ---
